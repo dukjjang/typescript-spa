@@ -18,27 +18,29 @@ export class Header {
     logoutButton?.addEventListener("click", () => {
       localStorage.removeItem("token");
       store.setUserInfo({ id: "", name: "", age: 0, profileImg: "" });
+      store.setIsLoggedIn(false);
       window.history.pushState({}, "", "/login");
       router.route();
     });
   }
 
   render() {
+    const isLoggedIn = store.getIsLoggedIn();
     const header = document.createElement("div");
     header.classList.add("header");
     header.innerHTML = `
-      <nav>
+      <nav class="nav">
         <ul id="routes">
         </ul>
-        <button class="logout">logout</button>
+        ${isLoggedIn ? "<button class='logout'>logout</button>" : ""}
       </nav>
     `;
 
     const routesElement = header.querySelector("#routes");
     routes.forEach((route: Route) => {
-      if (route.isPrivate && !store.getIsLoggedIn()) {
-        return;
-      }
+      if (route.isPrivate && !isLoggedIn) return;
+      if (route.name === "login" && isLoggedIn) return;
+
       const li = document.createElement("li");
       const a = document.createElement("a");
       a.setAttribute("href", route.path);

@@ -1,6 +1,8 @@
-import { HomePage, LoginPage, MyPage, AboutPage, TodoPage } from "../pages";
+import { HomePage, LoginPage, MyPage, TodoPage } from "../pages";
 import { Header } from "../components/header";
 import { ExceptionPage } from "../pages/404";
+import { store } from "../store";
+import "../style.css";
 
 export interface Route {
   name: (typeof routes)[number]["name"];
@@ -17,7 +19,6 @@ export interface Page {
 export const routes = [
   { name: "home", path: "/", page: HomePage, isPrivate: false },
   { name: "login", path: "/login", page: LoginPage, isPrivate: false },
-  { name: "about", path: "/about", page: AboutPage, isPrivate: false },
   { name: "todo", path: "/todo", page: TodoPage, isPrivate: true },
   { name: "mypage", path: "/mypage", page: MyPage, isPrivate: true },
 ];
@@ -36,12 +37,12 @@ export class Router {
   }
   checkLoginStatus() {
     const isLogin = localStorage.getItem("token");
-    return isLogin;
+    return !!isLogin;
   }
-
-  public route() {
+  public async route() {
     const path = window.location.pathname;
     const matchingRoute = this.routes.find((route) => route.path === path);
+    store.setIsLoggedIn(this.checkLoginStatus());
 
     if (matchingRoute) {
       if (matchingRoute.isPrivate && !this.isLoggedIn()) {
@@ -53,7 +54,8 @@ export class Router {
         this.parent.appendChild(header.render());
 
         const page = new matchingRoute.page();
-        this.parent.appendChild(page.render());
+        const element = await page.render();
+        this.parent.appendChild(element);
         page.init && page.init();
         header.init && header.init();
       }
