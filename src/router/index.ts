@@ -54,6 +54,11 @@ export class Router {
         this.parent.appendChild(header.render());
 
         const page = new matchingRoute.page();
+        if (matchingRoute.name === "login" && this.isLoggedIn()) {
+          // 로그인 상태에서 /login 으로 주소창에 입력해서 들어올때
+          window.history.pushState({}, "", "/");
+          this.route();
+        }
         const element = await page.render();
         this.parent.appendChild(element);
         page.init && page.init();
