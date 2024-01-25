@@ -58,7 +58,9 @@ export class Router {
           // 로그인 상태에서 /login 으로 주소창에 입력해서 들어올때
           window.history.pushState({}, "", "/");
           this.route();
+          return;
         }
+
         const element = await page.render();
         this.parent.appendChild(element);
         page.init && page.init();
